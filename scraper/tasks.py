@@ -8,10 +8,8 @@ import time
 from .models import Car, CarImage
 from django.db import transaction
 from car_scraper.celery import app
-# from googletrans import Translator
+from deep_translator import GoogleTranslator  # Import from deep-translator
 import logging
-from googletrans import Translator, LANGUAGES
-
 
 # Configure logging
 logger = logging.getLogger(__name__)
@@ -33,14 +31,15 @@ def scrape_cars():
         except requests.RequestException as e:
             logger.error(f"Failed to fetch links at offset {offset}: {e}")
             return []
-    def translate_text(text, src_lang='auto', dest_lang='en'):
+
+    def translate_text(text, source_lang='auto', target_lang='en'):
         try:
-            translator = Translator()
-            translated = translator.translate(text, src=src_lang, dest=dest_lang)
-            return translated.text
+            translated = GoogleTranslator(source=source_lang, target=target_lang).translate(text)
+            return translated
         except Exception as e:
-            logger.error(f"Translation error: {e}")
+            logger.error(f"Deep-Translator error: {e}")
             return text
+
     def fetch_car_data(href):
         url = f"https://www.goo-net.com{href}"
         try:
@@ -73,33 +72,38 @@ def scrape_cars():
                 match = re.search(pattern, script_content)
                 car_data[key] = match.group(1) if match else "N/A"
 
-            # Initialize the translator
-            translator = Translator()
-
+            # Translate specific fields
             try:
-                car_data["car_name"] = translate_text(car_data["car_name"], dest_lang='en')
+                car_data["car_name"] = translate_text(car_data["car_name"], target_lang='en')
                 print(car_data['car_name'])
             except Exception as e:
                 logger.error(f"Translation error for 'car_name': {e}")
                 car_data["car_name"] = car_data.get("car_name", "N/A")
 
             try:
-                car_data["fuel"] = translate_text(car_data["fuel"], dest_lang='en')
+                car_data["fuel"] = translate_text(car_data["fuel"], target_lang='en')
             except Exception as e:
                 logger.error(f"Translation error for 'fuel': {e}")
                 car_data["fuel"] = car_data.get("fuel", "N/A")
 
             try:
-                car_data["body_color"] = translate_text(car_data["body_color"], dest_lang='en')
+                car_data["body_color"] = translate_text(car_data["body_color"], target_lang='en')
             except Exception as e:
                 logger.error(f"Translation error for 'body_color': {e}")
                 car_data["body_color"] = car_data.get("body_color", "N/A")
 
             try:
-                car_data["location"] = translate_text(car_data["location"], dest_lang='en')
+                car_data["location"] = translate_text(car_data["location"], target_lang='en')
             except Exception as e:
                 logger.error(f"Translation error for 'location': {e}")
                 car_data["location"] = car_data.get("location", "N/A")
+
+
+            try:
+                car_data["car_brand_name"] = translate_text(car_data["car_brand_name"], target_lang='en')
+            except Exception as e:
+                logger.error(f"Translation error for 'car_brand_name': {e}")
+                car_data["car_brand_name"] = car_data.get("car_brand_name", "N/A")
 
             # Extract image URLs
             image_tags = soup.select("div.item.image img[data-lazy]")
@@ -111,7 +115,7 @@ def scrape_cars():
             return None
 
     offset = 0
-    while offset <50:
+    while offset < 50:
         hrefs = fetch_links(offset)
         if not hrefs:
             logger.info("No more links to process, terminating.")

@@ -6,6 +6,7 @@ from rest_framework.pagination import PageNumberPagination
 from .models import Car
 from .serializers import CarSerializer
 from .tasks import scrape_cars
+from rest_framework.exceptions import NotFound
 # from car_scraper.celery import start_periodic_scraping
 
 class CustomCarPagination(PageNumberPagination):
@@ -51,6 +52,21 @@ class CarViewSet(viewsets.ReadOnlyModelViewSet):
         'distance',
         'created_at'
     ]
+
+
+
+    def retrieve(self, request, *args, **kwargs):
+        """
+        Retrieve a car based on its stock_id instead of the primary key.
+        """
+        stock_id = kwargs.get('stock_id')
+        try:
+            car = Car.objects.get(stock_id=stock_id)  # Query by stock_id
+        except Car.DoesNotExist:
+            raise NotFound(detail="Car with the given stock_id not found.")  # Custom error message if car is not found
+
+        serializer = self.get_serializer(car)
+        return Response(serializer.data)
 
     def list(self, request):
         queryset = self.filter_queryset(self.get_queryset())
