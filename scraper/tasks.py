@@ -8,8 +8,10 @@ import time
 from .models import Car, CarImage
 from django.db import transaction
 from car_scraper.celery import app
-from googletrans import Translator
+# from googletrans import Translator
 import logging
+from googletrans import Translator, LANGUAGES
+
 
 # Configure logging
 logger = logging.getLogger(__name__)
@@ -31,7 +33,14 @@ def scrape_cars():
         except requests.RequestException as e:
             logger.error(f"Failed to fetch links at offset {offset}: {e}")
             return []
-
+    def translate_text(text, src_lang='auto', dest_lang='en'):
+        try:
+            translator = Translator()
+            translated = translator.translate(text, src=src_lang, dest=dest_lang)
+            return translated.text
+        except Exception as e:
+            logger.error(f"Translation error: {e}")
+            return text
     def fetch_car_data(href):
         url = f"https://www.goo-net.com{href}"
         try:
@@ -67,27 +76,27 @@ def scrape_cars():
             # Initialize the translator
             translator = Translator()
 
-            # Translate specific fields with error handling
             try:
-                car_data["car_name"] = translator.translate(car_data["car_name"], src='en', dest='es').text
+                car_data["car_name"] = translate_text(car_data["car_name"], dest_lang='en')
+                print(car_data['car_name'])
             except Exception as e:
                 logger.error(f"Translation error for 'car_name': {e}")
                 car_data["car_name"] = car_data.get("car_name", "N/A")
 
             try:
-                car_data["fuel"] = translator.translate(car_data["fuel"], src='en', dest='es').text
+                car_data["fuel"] = translate_text(car_data["fuel"], dest_lang='en')
             except Exception as e:
                 logger.error(f"Translation error for 'fuel': {e}")
                 car_data["fuel"] = car_data.get("fuel", "N/A")
 
             try:
-                car_data["body_color"] = translator.translate(car_data["body_color"], src='en', dest='es').text
+                car_data["body_color"] = translate_text(car_data["body_color"], dest_lang='en')
             except Exception as e:
                 logger.error(f"Translation error for 'body_color': {e}")
                 car_data["body_color"] = car_data.get("body_color", "N/A")
 
             try:
-                car_data["location"] = translator.translate(car_data["location"], src='en', dest='es').text
+                car_data["location"] = translate_text(car_data["location"], dest_lang='en')
             except Exception as e:
                 logger.error(f"Translation error for 'location': {e}")
                 car_data["location"] = car_data.get("location", "N/A")
