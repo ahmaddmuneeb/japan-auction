@@ -115,7 +115,7 @@ def scrape_cars():
             return None
 
     offset = 0
-    while offset < 50:
+    while True:
         hrefs = fetch_links(offset)
         if not hrefs:
             logger.info("No more links to process, terminating.")

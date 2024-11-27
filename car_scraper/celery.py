@@ -39,7 +39,7 @@ app.autodiscover_tasks()
 app.conf.beat_schedule = {
         'scrape-cars-every-minute': {
             'task': 'scraper.tasks.scrape_cars',
-            'schedule': 900.0,  # Run every 60 seconds (1 minute)
+            'schedule': 32400.0,  # Run every 60 seconds (1 minute)
         },
     }
     # Reload the beat schedule
