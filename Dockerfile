@@ -1,3 +1,4 @@
+#python version
 FROM python:3.11-slim
 
 # Set environment variables
