@@ -64,6 +64,24 @@ MIDDLEWARE = [
 ROOT_URLCONF = 'car_scraper.urls'
 
 CORS_ALLOW_ALL_ORIGINS = True
+CORS_ORIGIN_WHITELIST = [
+    'http://localhost:5000', 
+     # This is the allowed origin for your local frontend
+]
+CORS_ALLOWED_ORIGIN_REGEXES = [
+    r"^https?://(localhost|127\.0\.0\.1)(:\d+)?$",  # Allows any port on localhost/127.0.0.1
+]
+
+
+CORS_ALLOW_METHODS = [
+    'GET',
+    'POST',
+    'PUT',
+    'PATCH',
+    'DELETE',
+    'OPTIONS',
+]
+
 
 TEMPLATES = [
     {
