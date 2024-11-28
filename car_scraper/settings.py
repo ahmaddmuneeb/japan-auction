@@ -69,6 +69,7 @@ ROOT_URLCONF = 'car_scraper.urls'
 CORS_ALLOW_ALL_ORIGINS = True
 CORS_ORIGIN_WHITELIST = [
     'http://localhost:3000', 
+    "https://japan-auction-client.vercel.app/",
     
      # This is the allowed origin for your local frontend
 ]
