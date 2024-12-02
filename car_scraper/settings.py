@@ -43,6 +43,7 @@ INSTALLED_APPS = [
     'django.contrib.staticfiles',
     'rest_framework',
     'django_filters',
+    'corsheaders',
     'scraper',
     'django_celery_beat',
     'django_celery_results',
@@ -56,9 +57,37 @@ MIDDLEWARE = [
     'django.contrib.auth.middleware.AuthenticationMiddleware',
     'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
+    'corsheaders.middleware.CorsMiddleware',
+    'django.middleware.common.CommonMiddleware',
+    'corsheaders.middleware.CorsMiddleware',
+    'corsheaders.middleware.CorsMiddleware',
+    'django.middleware.common.BrokenLinkEmailsMiddleware',
 ]
 
 ROOT_URLCONF = 'car_scraper.urls'
+
+CORS_ALLOW_ALL_ORIGINS = True
+CORS_ORIGIN_WHITELIST = [
+    'http://localhost:3000', 
+    "https://japan-auction-client.vercel.app",
+    
+     # This is the allowed origin for your local frontend
+]
+CORS_ALLOWED_ORIGIN_REGEXES = [
+    r"^https?://(localhost|127\.0\.0\.1)(:\d+)?$", 
+      # Allows any port on localhost/127.0.0.1
+]
+
+
+CORS_ALLOW_METHODS = [
+    'GET',
+    'POST',
+    'PUT',
+    'PATCH',
+    'DELETE',
+    'OPTIONS',
+]
+
 
 TEMPLATES = [
     {
