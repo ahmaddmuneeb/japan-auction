@@ -13,9 +13,18 @@ class CustomCarPagination(PageNumberPagination):
     page_size = 50
     page_size_query_param = 'page_size'
     max_page_size = 100
+    def get_paginated_response(self, data):
+        current_page = self.page.number if self.page else 1
+        return Response({
+            'count': self.page.paginator.count,
+            'next': self.get_next_link(),
+            'previous': self.get_previous_link(),
+            'current_page': current_page,
+            'results': data
+        })
 
 class CarViewSet(viewsets.ReadOnlyModelViewSet):
-    queryset = Car.objects.all().order_by('-created_at')
+    queryset = Car.objects.all().order_by('created_at')
     serializer_class = CarSerializer
     pagination_class = CustomCarPagination
     filter_backends = [
