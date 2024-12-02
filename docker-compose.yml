@@ -7,33 +7,37 @@ services:
     ports:
       - "8000:8000"
     volumes:
-      - .:/app
+      - .:/app:cached
     depends_on:
       - redis
+      - db
     environment:
       - DJANGO_SETTINGS_MODULE=car_scraper.settings
       - CELERY_BROKER_URL=redis://redis:6379/0
       - REDIS_CACHE_URL=redis://redis:6379/1
+    user: root  # Use root user to handle permission issues during development
 
   celery_worker:
     build: .
     command: celery -A car_scraper worker --loglevel=info
     volumes:
-      - .:/app
+      - .:/app:cached
     depends_on:
       - redis
     environment:
       - DJANGO_SETTINGS_MODULE=car_scraper.settings
+    user: root  # Adjust user if necessary
 
   celery_beat:
     build: .
     command: celery -A car_scraper beat --loglevel=info
     volumes:
-      - .:/app
+      - .:/app:cached
     depends_on:
       - redis
     environment:
       - DJANGO_SETTINGS_MODULE=car_scraper.settings
+    user: root  # Adjust user if necessary
 
   redis:
     image: redis:6.2
@@ -48,3 +52,8 @@ services:
       POSTGRES_DB: postgres
     ports:
       - "5432:5432"
+    volumes:
+      - db_data:/var/lib/postgresql/data
+
+volumes:
+  db_data:
